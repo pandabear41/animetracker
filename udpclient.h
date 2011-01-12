@@ -2,19 +2,26 @@
 Anime Tracker - udp client for http://anidb.net/ 
 ----------------------------------------------------------------------------*/
 
-
+#define	MAX_BUF		40000
 class udpclient {
 public:
-	udpclient(int delay);
+	udpclient(int delay, log *rlog);
 	~udpclient();
-	int connect(const char *server, int port);
-	void disconnect();
-	void send(const char *buf, size_t len);
+	int udpconnect(const char *server, int port);
+	void udpdisconnect();
+	void send(const char *buf);
 	bool recieve();
 	char* get_recieved();
 
 private:
-	int delay;
-	char* recived;
+	int udp_delay;
+	char* udp_recived;
+	log *udp_log;
+	
+	int s;
+	char rbuf[MAX_BUF];
+	//struct sockaddr_in sock_in;
+	//truct sockaddr_in local_in;
 
-}
+
+};

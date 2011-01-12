@@ -4,4 +4,6 @@
 
 
 c++ log.cpp tests/testLog.cpp -o tests/testLog
+echo "Project 2"
+c++ log.cpp udpclient.cpp tests/testUDPClient.cpp -o tests/testUDPClient
 
