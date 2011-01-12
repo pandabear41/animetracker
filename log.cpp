@@ -1,15 +1,17 @@
 #include <stdarg.h>
+#include <fstream>
+
 #include "log.h"
 
-Log::Log(char* filename) {
+log::log(char* filename) {
   m_stream.open(filename, ios_base::app);
 }
 
-Log::~Log(){
+log::~log(){
   m_stream.close();
 }
 
-void Log::Write(const char* logline, ...){
+void log::write(const char* logline, ...){
   va_list argList;
   char cbuffer[1024];
   va_start(argList, logline);

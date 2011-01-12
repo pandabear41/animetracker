@@ -1,12 +1,12 @@
-#include <fstream>
+
 
 using namespace std;
 
-class Log {
+class log {
   public:
-    Log(char* filename);
-    ~Log();
-    void Write(const char* logline, ...);
+    log(char* filename);
+    ~log();
+    void write(const char* logline, ...);
   private:
     ofstream m_stream;
 };
