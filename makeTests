@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make all of the tests...
+
+
+c++ log.cpp tests/testLog.cpp -o tests/testLog
+
