@@ -47,6 +47,7 @@ udpclient::udpclient(int delay,log *rlog) {
 	s= -1;
 	udp_log = rlog;
 	connected = false;
+	retry = RETRY_TIMES;
 	udp_log->write("Connection: UDP client loaded");
 }
 
@@ -103,6 +104,11 @@ void udpclient::udpconnect(const char *server, int port) {
 		udp_log->write("Connection: Can not set address");
 		err(EX_OSERR, "cannot set addr");
 	}
+	rc = setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, &x, sizeof(x));
+	if (rc < 0) {
+		udp_log->write("Connection: Can not set keep-alive");
+		err(EX_OSERR, "cannot set keepalive");
+	}
 	bzero((char *)&local_in, sizeof(local_in));
 	//local_in.sin_len = sizeof(local_in); Is not used anymore
 	local_in.sin_family = sock_in.sin_family;
@@ -147,8 +153,15 @@ bool udpclient::recieve() {
 	len = read(s, gbuf, sizeof(gbuf));
 	if (len < 0) {
 		udp_log->write("Connection: Read Failed");
+		if (retry != 0) { 
+			retry--;
+			udp_log->write("Connection: Retry %d of %d for receiving.", (RETRY_TIMES - retry), RETRY_TIMES);
+			return this->recieve();
+		}
 		return false;
 	}
+	udp_log->write("Connection: Packet Recieved: %s",this->get_recieved());	
+	retry = RETRY_TIMES;
 	return true;
 }
 
@@ -171,12 +184,21 @@ void udpclient::send(const char *buf){
 		udp_log->write("Connection: %i delay before send", delay);
 		sleep((unsigned int)delay);
 	}
+	
 	if ( write (s, buf, strlen (buf)) != strlen (buf)) {
 		udp_log->write("Connection: Write Failed");
+		if (retry > 0) { 
+			retry--;
+			udp_log->write("Connection: Retry %d of %d for sending.", (RETRY_TIMES - retry), RETRY_TIMES);			
+			next_send = time(NULL) + udp_delay;
+			return this->send(buf);
+		}
+		return ;
 	}
 	udp_log->write("Connection: Sent Packet: %s", buf);
-
+	
 	next_send = time(NULL) + udp_delay;
+	retry = RETRY_TIMES;
 }
 
 

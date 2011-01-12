@@ -6,13 +6,12 @@
 
 int main() {
 	log *pLog = new log("connection.log");
-	udpclient *udp = new udpclient(5,pLog);
+	udpclient *udp = new udpclient(4,pLog);
 	udp->udpconnect("api.anidb.net",9000);
 	udp->send("PING");
 	udp->recieve();
-	pLog->write("Recieved text from PING: %s",udp->get_recieved());	
+	sleep(1);
 	udp->send("PING");
 	udp->recieve();
-	pLog->write("Recieved text from PING: %s",udp->get_recieved());	
 	udp->udpdisconnect();
 }

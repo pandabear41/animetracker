@@ -3,6 +3,7 @@ Anime Tracker - udp client for http://anidb.net/
 ----------------------------------------------------------------------------*/
 
 #define	BUF_LEN		50000
+#define RETRY_TIMES	2
 class udpclient {
 public:
 	udpclient(int delay, log *rlog);
@@ -16,6 +17,7 @@ public:
 private:
 	int udp_delay;
 	int s;
+	int retry;
 	log *udp_log;
 	time_t next_send;
 	bool connected;
