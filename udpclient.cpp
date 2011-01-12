@@ -36,7 +36,6 @@ Anime Tracker - udp client for http://anidb.net/
 #include <ctype.h>
 #include <errno.h>
 
-#include <fcntl.h>
 
 #include "log.h"
 #include "udpclient.h"
@@ -47,10 +46,11 @@ udpclient::udpclient(int delay,log *rlog) {
 	udp_delay = delay;
 	s= -1;
 	udp_log = rlog;
+	connected = false;
 	udp_log->write("Connection: UDP client loaded");
 }
 
-int udpclient::udpconnect(const char *server, int port) {
+void udpclient::udpconnect(const char *server, int port) {
 	struct hostent *hp;
 	struct in_addr iaddr;
 	struct sockaddr_in sock_in;
@@ -58,8 +58,12 @@ int udpclient::udpconnect(const char *server, int port) {
 	struct timeval resp_timeout = { 30, 0 };
 	int x = 1;
 	int rc;
-
 	udp_log->write("Connection: Connecting..");
+	if (connected) {
+		udp_log->write("Connection: Already made a connection");
+		return ;
+	}
+	
 	bzero((char *)&sock_in, sizeof(sock_in));
 	iaddr.s_addr = inet_addr(server);
 	if (iaddr.s_addr != INADDR_NONE) {
@@ -81,7 +85,7 @@ int udpclient::udpconnect(const char *server, int port) {
 		}
 	}
 	sock_in.sin_family = hp->h_addrtype;
-	//sock_in.sin_len = sizeof(sock_in);
+	//sock_in.sin_len = sizeof(sock_in); Is not used anymore
 	memcpy(&sock_in.sin_addr, hp->h_addr_list[0],(unsigned)(hp->h_length));
 	sock_in.sin_port = htons(port);
 	s = socket(sock_in.sin_family, SOCK_DGRAM, IPPROTO_UDP);
@@ -100,7 +104,7 @@ int udpclient::udpconnect(const char *server, int port) {
 		err(EX_OSERR, "cannot set addr");
 	}
 	bzero((char *)&local_in, sizeof(local_in));
-	//local_in.sin_len = sizeof(local_in);
+	//local_in.sin_len = sizeof(local_in); Is not used anymore
 	local_in.sin_family = sock_in.sin_family;
 	local_in.sin_port = htons(port);
 	rc = bind(s, (struct sockaddr *)(&local_in), sizeof(local_in));
@@ -112,9 +116,12 @@ int udpclient::udpconnect(const char *server, int port) {
 		udp_log->write("Connection: Can not connect to server");
 		err(EX_OSERR, "cannot connect");
 	}
+	
+	next_send = time(NULL);	
+	connected = true;
 
 	udp_log->write("Connection: Connected");
-	return 0;
+	return ;
 
 }
 
@@ -123,17 +130,22 @@ int udpclient::udpconnect(const char *server, int port) {
 void udpclient::udpdisconnect() {
 	int rc;
 	rc = shutdown(s, SHUT_RDWR);
+	connected = false;
 	udp_log->write("Connection: Disconnected");
 }
 
 
 
 bool udpclient::recieve() {
-	long llen;
-
-	bzero(rbuf, sizeof(rbuf));
-	llen = read(s, rbuf, sizeof(rbuf));
-	if (llen < 0) {
+	long len;
+	
+	if (!connected) {
+		udp_log->write("Connection: Make a connection before sending/receiving");
+		return false;
+	}
+	bzero(gbuf, sizeof(gbuf));
+	len = read(s, gbuf, sizeof(gbuf));
+	if (len < 0) {
 		udp_log->write("Connection: Read Failed");
 		return false;
 	}
@@ -141,13 +153,30 @@ bool udpclient::recieve() {
 }
 
 char* udpclient::get_recieved() {
-	return rbuf;
+	return gbuf;
 }
 
 
 void udpclient::send(const char *buf){
-	(void) write (s, buf, strlen (buf));
-	udp_log->write("Connection: Sent Packet");
+	time_t now;
+	long delay;
+
+	if (!connected) {
+		udp_log->write("Connection: Make a connection before sending/receiving");
+		return ;
+	}
+	now = time(NULL);
+	delay = next_send - now;
+	if (delay > 0) {
+		udp_log->write("Connection: %i delay before send", delay);
+		sleep((unsigned int)delay);
+	}
+	if ( write (s, buf, strlen (buf)) != strlen (buf)) {
+		udp_log->write("Connection: Write Failed");
+	}
+	udp_log->write("Connection: Sent Packet: %s", buf);
+
+	next_send = time(NULL) + udp_delay;
 }
 
 

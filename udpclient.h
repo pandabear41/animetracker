@@ -2,12 +2,12 @@
 Anime Tracker - udp client for http://anidb.net/ 
 ----------------------------------------------------------------------------*/
 
-#define	MAX_BUF		40000
+#define	BUF_LEN		50000
 class udpclient {
 public:
 	udpclient(int delay, log *rlog);
 	~udpclient();
-	int udpconnect(const char *server, int port);
+	void udpconnect(const char *server, int port);
 	void udpdisconnect();
 	void send(const char *buf);
 	bool recieve();
@@ -15,13 +15,12 @@ public:
 
 private:
 	int udp_delay;
-	char* udp_recived;
-	log *udp_log;
-	
 	int s;
-	char rbuf[MAX_BUF];
-	//struct sockaddr_in sock_in;
-	//truct sockaddr_in local_in;
+	log *udp_log;
+	time_t next_send;
+	bool connected;
+	char gbuf[BUF_LEN];
+
 
 
 };

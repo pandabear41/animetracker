@@ -11,5 +11,8 @@ int main() {
 	udp->send("PING");
 	udp->recieve();
 	pLog->write("Recieved text from PING: %s",udp->get_recieved());	
+	udp->send("PING");
+	udp->recieve();
+	pLog->write("Recieved text from PING: %s",udp->get_recieved());	
 	udp->udpdisconnect();
 }
