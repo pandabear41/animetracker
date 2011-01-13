@@ -6,4 +6,6 @@
 c++ log.cpp tests/testLog.cpp -o bin/tests/testLog
 echo "Project 2"
 c++ log.cpp udpclient.cpp tests/testUDPClient.cpp -o bin/tests/testUDPClient
-
+echo "Project 3"
+c++ log.cpp database.cpp tests/testDatabase.cpp -o bin/tests/testDatabase -Wall -W -O2 -s -pipe -Wl,-R/usr/local/lib -lsqlite3 -lm
+echo "Project 4"
