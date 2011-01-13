@@ -2,47 +2,18 @@
 Anime Tracker - udp client for http://anidb.net/ 
 ----------------------------------------------------------------------------*/
 
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <err.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <string.h>
-
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-*/
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/uio.h>
-#include <sys/time.h>
-#include <sys/file.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-
-#include <sysexits.h>
-#include <err.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <ctype.h>
-#include <errno.h>
-
+#include <string.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 
 #include "log.h"
 #include "udpclient.h"
 
-
-
-udpclient::udpclient(int delay,log *rlog) {
+udpclient::udpclient(int delay, log *rlog) {
 	udp_delay = delay;
 	s= -1;
 	udp_log = rlog;
