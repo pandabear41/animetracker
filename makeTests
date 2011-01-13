@@ -3,7 +3,7 @@
 # Make all of the tests...
 
 
-c++ log.cpp tests/testLog.cpp -o tests/testLog
+c++ log.cpp tests/testLog.cpp -o bin/tests/testLog
 echo "Project 2"
-c++ log.cpp udpclient.cpp tests/testUDPClient.cpp -o tests/testUDPClient
+c++ log.cpp udpclient.cpp tests/testUDPClient.cpp -o bin/tests/testUDPClient
 

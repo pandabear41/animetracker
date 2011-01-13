@@ -6,7 +6,14 @@ class log {
   public:
     log(char* filename);
     ~log();
-    void write(const char* logline, ...);
+    void write(const char* type, const char* logline);
+    void error(const char* logline, ...);
+    void warning(const char* logline, ...);
+    void fatal(const char* logline, ...);
+    void message(const char* logline, ...);
+    void debug(const char* logline, ...);
   private:
-    ofstream m_stream;
+    FILE *fp;
+    void _open(char* filename);
+    void _close();
 };

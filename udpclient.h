@@ -8,7 +8,7 @@ class udpclient {
 public:
 	udpclient(int delay, log *rlog);
 	~udpclient();
-	void udpconnect(const char *server, int port);
+	bool udpconnect(const char *server, int port);
 	void udpdisconnect();
 	void send(const char *buf);
 	bool recieve();
